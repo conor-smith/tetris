@@ -1,3 +1,29 @@
+pub enum Block {
+    Empty,
+    Teal,
+    Blue,
+    Orange,
+    Yellow,
+    Green,
+    Purple,
+    Red
+}
+
+pub enum Tetromino {
+    IBlock,
+    JBlock,
+    LBlock,
+    OBlock,
+    SBlock,
+    TBlock,
+    ZBlock
+}
+
+pub struct Coordinate {
+    x: i8,
+    y: i8
+}
+
 pub trait TetrisGame {
     fn get_play_field(&self) -> &[&[Block]];
     fn get_length(&self) -> &u8;
@@ -24,37 +50,16 @@ pub trait Renderer {
     fn render_game<T: TetrisGame>(&self, game: T, update: GameUpdate);
 }
 
-pub enum GameUpdate {
+pub enum GameUpdate<'a> {
     NoUpdate,
     GameOver,
-    // There will be at least one frame where the tetromino has been placed but no new tetromino has been spawned
-    ActiveTetrominoPlaced,
-    // If only one row is cleared, [0] will be y value. [1-3] will be 0 as row 0 is the top row`
-    // It is assumed that clearing rows requires an animation. As such, rows will remain until next call to update()
-    RowsToClear(([u8; 4], [Coordinate; 4])),
+    // One a tetromino is placed
+    // One frame passes until a new active tetromino appears
+    // The slice contains all rows that will be cleared upon call to update()
+    // Will have length 0 if no rows are cleared
+    TetrominoPlaced(&'a [u8]),
     // Returning this state allows us to play a sound if this event occurs
     UserActionFailed
-}
-
-pub enum Block {
-    Empty,
-    Teal,
-    Blue,
-    Orange,
-    Yellow,
-    Green,
-    Purple,
-    Red
-}
-
-pub enum Tetromino {
-    IBlock,
-    JBlock,
-    LBlock,
-    OBlock,
-    SBlock,
-    TBlock,
-    ZBlock
 }
 
 pub enum Rotation {
@@ -144,9 +149,4 @@ impl Tetromino {
             Tetromino::TBlock => (false, Coordinate{x: 1, y: 1}),
         }
     }
-}
-
-pub struct Coordinate {
-    x: i8,
-    y: i8
 }
